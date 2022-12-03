@@ -158,6 +158,7 @@ Features で選択したツール群がコンテナで使用できるように�
 ## Docusaurus をインストールしてデフォルトページを表示
 
 [Docusaurus 公式のインストールガイド](https://docusaurus.io/docs/installation)に従ってインストールしてみます。
+サイト名は `my-website`、テーマは `classic` になっています。
 
 ```bash
 npx create-docusaurus@latest my-website classic
