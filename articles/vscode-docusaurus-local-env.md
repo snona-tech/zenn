@@ -172,7 +172,10 @@ Need to install the following packages:
 Ok to proceed? (y)
 ```
 :::message
-`npm WARN` なんかが色々出ますが、ターミナル出力の中盤あたりに `[SUCCESS] Created my-website.` が出力されていれば問題ありません。
+`npm WARN` なんかが色々出ますが、ターミナル出力の中盤あたりに👇が出力されていれば問題ありません。
+```
+[SUCCESS] Created my-website.
+```
 :::
 
 それでは、ディレクトリを移動して、ドキュサウルスに会いに行きましょう！
