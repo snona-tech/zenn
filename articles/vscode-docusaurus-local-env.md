@@ -163,14 +163,8 @@ Features で選択したツール群がコンテナで使用できるように�
 npx create-docusaurus@latest my-website classic
 ```
 
-コマンドを実行すると、確認メッセージが出るので、`y` を入力して進みます。
+コマンドを実行すると、`Ok to proceed? (y)` という確認メッセージが出るので、`y` を入力して Enter キーで進みます。
 
-```
-vscode ➜ /workspaces/hello-docusaurus $ npx create-docusaurus@latest my-website classic
-Need to install the following packages:
-  create-docusaurus@2.2.0
-Ok to proceed? (y)
-```
 :::message
 `npm WARN` なんかが色々出ますが、ターミナル出力の中盤あたりに👇が出力されていれば問題ありません。
 ```
