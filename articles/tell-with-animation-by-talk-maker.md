@@ -4,7 +4,7 @@ emoji: "🗣"
 type: "idea"
 topics: ["line"]
 published: true
-published_at: 2022-12-02 23:59
+published_at: 2022-12-03 00:00
 ---
 
 :::message

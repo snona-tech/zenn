@@ -3,8 +3,8 @@ title: "VSCode + Docusaurus で最高のドキュメント作成環境を構築�
 emoji: "🦖"
 type: "tech"
 topics: ["vscode", "docusaurus", "docker", "npm", "markdown"]
-published: false
-# published_at: 2022-12-03 23:59
+published: true
+published_at: 2022-12-04 00:00
 ---
 
 :::message
@@ -83,9 +83,99 @@ Docker コマンドを自分で叩かなくてもイメージが作れて接続�
 
 ## Dev Container の設定ファイル作成
 
+まずは、空のフォルダを VSCode で開きましょう。
+フォルダ名は任意のもので OK です。今回は、`hello-docusaurus` にしました。
+
+VSCode でフォルダを開いたら、左下の緑の `><` マークをクリックしてパネルを開きます。
+
+![パネルを開く](/images/vscode-docusaurus-local-env/open-panel.png)
+*パネルを開く*
+
+開いたパネルから、`Add Dev Container Configuration Files` を選択します。
+
+![Dev Container の設定ファイルを追加](/images/vscode-docusaurus-local-env/add-devcontainer-config.png)
+*Dev Container の設定ファイルを追加*
+
+以下をチェックして、OK を選択します。
+
+* [x] image: Ubuntu(Jammy)
+* Features
+  * [x] Git（Git 管理したい場合は選択）
+  * [x] Node.js（Docusaurus で使用するので必須）
+  * [x] Docker in Docker（アドベントカレンダーの別記事にて、コンテナ化するときに必須）
+
+![イメージとインストールする機能を選択](/images/vscode-docusaurus-local-env/devcontainers-config-setting.gif)
+*イメージとインストールする機能を選択*
+
+すると、次のような JSON ファイルが生成されます。（コメント部分は省略）
+
+```json:.devcontainer/devcontainer.json
+{
+	"name": "Ubuntu",
+	"image": "mcr.microsoft.com/devcontainers/base:jammy",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/node:1": {}
+	}
+}
+```
+
+:::message
+手動でこの JSON ファイルを作成しても OK です。
+Features で選択したツール群がコンテナで使用できるようになります。
+:::
+
 ## コンテナに接続
 
+左下の緑の `><` マークをクリックしてパネルを開きます。
+開いたパネルから、`Reopen in Container` を選択すると、イメージのビルドが行われ、起動したコンテナに接続します。
+
+![イメージのビルドとコンテナの起動](/images/vscode-docusaurus-local-env/reopen-in-container.png)
+*イメージのビルドとコンテナの起動*
+
+:::message
+２回目以降の接続は、ビルド済みのイメージからコンテナに接続します。
+:::
+
+正常にコンテナが起動すると、自動でコンテナに接続されます。
+ターミナルで各種インストールされたツール群が使用できることが確認できます。
+
+![コンテナへの接続](/images/vscode-docusaurus-local-env/container-connection.png)
+*コンテナへの接続*
+
 ## Docusaurus をインストールしてデフォルトページを表示
+
+[Docusaurus 公式のインストールガイド](https://docusaurus.io/docs/installation)に従ってインストールしてみます。
+
+```bash
+npx create-docusaurus@latest my-website classic
+```
+
+コマンドを実行すると、確認メッセージが出るので、`y` を入力して進みます。
+
+```
+vscode ➜ /workspaces/hello-docusaurus $ npx create-docusaurus@latest my-website classic
+Need to install the following packages:
+  create-docusaurus@2.2.0
+Ok to proceed? (y)
+```
+:::message
+`npm WARN` なんかが色々出ますが、ターミナル出力の中盤あたりに `[SUCCESS] Created my-website.` が出力されていれば問題ありません。
+:::
+
+それでは、ディレクトリを移動して、ドキュサウルスに会いに行きましょう！
+次のコマンドを実行してしばらくすると、VSCode で勝手に Docusaurus のデフォルトポート（`3000` 番）にポートフォワードしてくれて、ローカルのブラウザが開きます。
+
+```bash
+cd my-website
+npm start
+```
+
+![Docusaurus デフォルトページ](/images/vscode-docusaurus-local-env/docusaurus-default-page.png)
+*Docusaurus デフォルトページ*
+
+やったね🙌
 
 # 最後に
 
