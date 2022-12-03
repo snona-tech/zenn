@@ -17,7 +17,6 @@ published_at: 2022-12-04 00:00
 * 開発環境は、[Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)（VSCode の拡張機能）を使うと便利
 * [Docusaurus](https://docusaurus.io/) は、Markdown(+[MDX](https://mdxjs.com/)) ベースでドキュメントやブログの静的 Web サイトを作成できるツール
 
-
 # はじめに
 
 みなさんは、ドキュメントを作成する時、何を使っていますか？
