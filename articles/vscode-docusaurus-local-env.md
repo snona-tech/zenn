@@ -133,6 +133,8 @@ VSCode でフォルダを開いたら、左下の緑の `><` マークをクリ�
 :::message
 手動でこの JSON ファイルを作成しても OK です。
 Features で選択したツール群がコンテナで使用できるようになります。
+その他の使用可能な Features は次にまとまっています。
+* https://containers.dev/features
 :::
 
 ## コンテナに接続
