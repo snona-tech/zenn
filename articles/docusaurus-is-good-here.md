@@ -307,7 +307,12 @@ npm run docusaurus docs:version 1.0.0
 ![バージョン切り替え](/images/docusaurus-is-good-here/add-version.png)
 *バージョン切り替え*
 
-めちゃくちゃ簡単ですね！
+また、`Next` バージョンや最新でないバージョンに切り替えると、最新バージョンを見るようにアナウンスしてくれます。
+
+![最新バージョンを見るようにアナウンス](/images/docusaurus-is-good-here/next-version.png)
+*最新バージョンを見るようにアナウンス*
+
+めちゃくちゃ便利で簡単ですね！
 次回以降のバージョンは、👇のように同様のコマンドを実行すれば自動で追加されます。
 
 ```
