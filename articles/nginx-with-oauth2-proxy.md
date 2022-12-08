@@ -262,7 +262,7 @@ COPY --from=build /build /usr/share/nginx/html
 + CMD [ "sh", "startup.sh" ]
 ```
 
-アーキテクチャやバージョンを指定して OAuth2 Proxy をインストール。
+アーキテクチャやバージョンを指定して OAuth2 Proxy をインストールしています。
 
 ```dockerfile:OAuth2 Proxy のインストール情報
 ARG CPU_ARCH=amd64
