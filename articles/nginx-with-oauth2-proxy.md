@@ -139,7 +139,7 @@ http {
 ## OAuth2 Proxy の設定ファイルを作成
 
 次に、`server-config` 配下に OAuth2 Proxy の設定ファイルのテンプレート（`oauth2proxy.conf.template`）を新規に作成します。
-中身は次のようにします。（おそらく最小構成ですが、筆者はあまりよくわかっていないです🙏）
+中身は次のようにします。（おそらく最小構成だと思います🙏）
 
 ```properties:server-config/oauth2proxy.conf.template
 provider = "oidc"
@@ -155,20 +155,23 @@ oidc_issuer_url = "https://cognito-idp.ap-northeast-1.amazonaws.com/${USER_POOL_
 
 client_id = "${APPLICATION_CLIENT_ID}"
 client_secret = "${APPLICATION_CLIENT_SECRET}"
+
+redirect_url = "${REDIRECT_URL}"
 ```
 
 ファイル内には、次の環境変数を埋め込んでいます。
 
-| 環境変数                  | 設定値                                               |
-| :------------------------ | :--------------------------------------------------- |
-| COOKIE_SECRET             | Cookie のシード文字列（後ほど、Python で生成します） |
-| USER_POOL_ID              | Cognito のユーザープール ID                          |
-| APPLICATION_CLIENT_ID     | Cognito のアプリケーションクライアント ID            |
-| APPLICATION_CLIENT_SECRET | Cognito のアプリケーションクライアントのシークレット |
+| 環境変数                  | 設定値                                                   |
+| :------------------------ | :------------------------------------------------------- |
+| COOKIE_SECRET             | Cookie のシード文字列（後ほど、Python で生成します）     |
+| USER_POOL_ID              | Cognito のユーザープール ID                              |
+| APPLICATION_CLIENT_ID     | Cognito のアプリケーションクライアント ID                |
+| APPLICATION_CLIENT_SECRET | Cognito のアプリケーションクライアントのシークレット     |
+| REDIRECT_URL              | Cognito のアプリケーションクライアントのコールバック URL |
 
 :::message
-OAuth2 Proxy の設定ファイルをテンプレートで作成しているのは、コンテナイメージに組み込む際に、ファイル内の環境変数を展開するためです。
-環境変数の展開は、`envsubst` コマンドで行います（Dockerfile の RUN で記述します）。
+OAuth2 Proxy の設定ファイルをテンプレートで作成しているのは、コンテナ起動時にファイル内の環境変数を展開するためです。
+環境変数の展開は、`envsubst` コマンドで行います。
 :::
 
 詳細な設定項目は次を参照してください。
@@ -210,6 +213,22 @@ startretries=10
 autorestart=true
 ```
 
+## コンテナ起動時のスタートアップスクリプトを作成
+
+コンテナ起動時に実行するスタートアップスクリプト（`startup.sh`）を新規に作成します。
+中身は次のようにします。
+
+```bash:startup.sh
+#!/bin/bash
+envsubst < /etc/oauth2proxy.conf.template > /etc/oauth2proxy.conf
+/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+```
+
+:::message
+コンテナ起動時に環境変数を渡し、`envsubst` コマンドで OAuth2 Proxy のテンプレート内の環境変数を展開することで設定ファイルを生成しています。
+また、`supervisord` コマンドで Nginx と OAuth2 Proxy のプロセスを起動しています。
+:::
+
 ## Dockerfile を編集
 
 Dockerfile を次のように編集します。
@@ -223,14 +242,6 @@ FROM nginx:1.23.2
 
 + ARG CPU_ARCH=amd64
 + ARG OAUTH2_PROXY_VERSION=7.4.0
-+ ARG COOKIE_SECRET
-+ ARG USER_POOL_ID
-+ ARG APPLICATION_CLIENT_ID
-+ ARG APPLICATION_CLIENT_SECRET
-+ ENV COOKIE_SECRET=${COOKIE_SECRET}
-+ ENV USER_POOL_ID=${USER_POOL_ID}
-+ ENV APPLICATION_CLIENT_ID=${APPLICATION_CLIENT_ID}
-+ ENV APPLICATION_CLIENT_SECRET=${APPLICATION_CLIENT_SECRET}
 
 + RUN set -x && \
 +     apt update && \
@@ -244,12 +255,11 @@ FROM nginx:1.23.2
 COPY ./server-config/nginx.conf /etc/nginx/nginx.conf
 + COPY ./server-config/oauth2proxy.conf.template /etc/oauth2proxy.conf.template
 + COPY ./server-config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
++ COPY ./startup.sh /startup.sh
 COPY --from=build /build /usr/share/nginx/html
 
-+ RUN /bin/sh -c "envsubst < /etc/oauth2proxy.conf.template > /etc/oauth2proxy.conf"
-
 - CMD [ "nginx", "-g", "daemon off;" ]
-+ CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
++ CMD [ "sh", "startup.sh" ]
 ```
 
 アーキテクチャやバージョンを指定して OAuth2 Proxy をインストール。
@@ -261,19 +271,6 @@ ARG OAUTH2_PROXY_VERSION=7.4.0
 RUN wget https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v${OAUTH2_PROXY_VERSION}/oauth2-proxy-v${OAUTH2_PROXY_VERSION}.linux-${CPU_ARCH}.tar.gz && \
     tar xf oauth2-proxy-v${OAUTH2_PROXY_VERSION}.linux-${CPU_ARCH}.tar.gz -C /usr/local/bin/ --strip-components 1 && \
     rm oauth2-proxy-v${OAUTH2_PROXY_VERSION}.linux-${CPU_ARCH}.tar.gz
-```
-
-Docker ビルドする際に環境変数を受け取れるようにします。
-
-```dockerfile:環境変数などの読み込み設定
-ARG COOKIE_SECRET
-ARG USER_POOL_ID
-ARG APPLICATION_CLIENT_ID
-ARG APPLICATION_CLIENT_SECRET
-ENV COOKIE_SECRET=${COOKIE_SECRET}
-ENV USER_POOL_ID=${USER_POOL_ID}
-ENV APPLICATION_CLIENT_ID=${APPLICATION_CLIENT_ID}
-ENV APPLICATION_CLIENT_SECRET=${APPLICATION_CLIENT_SECRET}
 ```
 
 apt のインストールを高速化するようなオマジナイなんかがついていますが、必要なツールをインストールしているだけです。
@@ -289,20 +286,18 @@ RUN set -x && \
     supervisor wget gettext-base
 ```
 
-追加した設定ファイルの COPY を追加しています。
-また、`envsubst` コマンドで OAuth2 Proxy のテンプレートの環境変数を展開した設定ファイルを作成しています。
+追加した設定ファイルおよびコンテナ起動時に実行するスタートアップスクリプトの COPY を追加しています。
 
-```dockerfile:追加した設定ファイルのコピーと環境変数の展開
+```dockerfile:追加した設定ファイルおよびスタートアップスクリプトのコピー
 COPY ./server-config/oauth2proxy.conf.template /etc/oauth2proxy.conf.template
 COPY ./server-config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-・・・
-RUN /bin/sh -c "envsubst < /etc/oauth2proxy.conf.template > /etc/oauth2proxy.conf"
+COPY ./startup.sh /startup.sh
 ```
 
-コンテナ起動時に Supervisor を起動するようにして、Nginx と OAuth2 Proxy のプロセスが立ち上がるようにしています。
+コンテナ起動時にスタートアップスクリプトを実行するようにします。
 
-```dockerfile:追加した設定ファイルのコピーと環境変数の展開
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+```dockerfile:コンテナ起動時にスタートアップスクリプトを実行
+CMD [ "sh", "startup.sh" ]
 ```
 
 # 認証機能の確認をしてみよう！
@@ -310,49 +305,38 @@ CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 長かったですが、いよいよ認証機能の確認をしてみます。
 Docker ビルドして、コンテナを起動してみましょう！
 
-## 環境変数の設定
-
-Docker ビルド をする前に、Cognito のクレデンシャル情報等の環境変数の値を設定しておきましょう。
-👇のように設定すれば OK です。
-
-```bash
-export USER_POOL_ID=xxxxxxxxxxxxxx_xxxxxxxxx
-export APPLICATION_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
-export APPLICATION_CLIENT_SECRET=***************************************************
-```
-
-各環境変数の値ですが、Cognito では次の画面に表示されている値を設定します。
-
-![USER_POOL_ID の値](/images/nginx-with-oauth2-proxy/user-pool-id.png)
-*USER_POOL_ID の値*
-
-![APPLICATION_CLIENT の値](/images/nginx-with-oauth2-proxy/application-client-info.png)
-*APPLICATION_CLIENT の値*
-
 ## Docker ビルド
 
 それでは、Docker ビルドをしてみましょう。
-環境変数等を諸々設定したコマンドは👇になります。
 
 ```bash
-DOCKER_BUILDKIT=1
-docker build \
-  --progress=plain \
-  --no-cache \
-  --build-arg COOKIE_SECRET=`python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())'` \
-  --build-arg USER_POOL_ID=${USER_POOL_ID} \
-  --build-arg APPLICATION_CLIENT_ID=${APPLICATION_CLIENT_ID} \
-  --build-arg APPLICATION_CLIENT_SECRET=${APPLICATION_CLIENT_SECRET} \
-  -t my-website:1.0.0 .
+DOCKER_BUILDKIT=1 docker build --progress=plain --no-cache -t my-website:1.0.0 .
 ```
 
 ## コンテナの起動
 
 コンテナを起動してみます。
+コンテナ起動時に Cognito のクレデンシャル情報等の環境変数の値を渡すため、`--env` オプションを指定します。
 
 ```bash
-docker run --rm -p 80:80 my-website:1.0.0
+docker run --rm -p 80:80 \
+  --env COOKIE_SECRET=`python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())'` \
+  --env USER_POOL_ID=xxxxxxxxxxxxxx_xxxxxxxxx \
+  --env APPLICATION_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx \
+  --env APPLICATION_CLIENT_SECRET=*************************************************** \
+  --env REDIRECT_URL=http://localhost/oauth2/callback \
+  my-website:1.0.0
 ```
+
+:::message
+Cognito のクレデンシャル情報は次の画面に表示されている値を設定します。
+
+![USER_POOL_ID の値](/images/nginx-with-oauth2-proxy/user-pool-id.png =450x)
+*USER_POOL_ID の値*
+
+![APPLICATION_CLIENT_XXX の値](/images/nginx-with-oauth2-proxy/application-client-info.png =450x)
+*APPLICATION_CLIENT_XXX の値*
+:::
 
 :::message
 次のような出力であれば正常に起動しているはずです。
@@ -361,17 +345,15 @@ docker run --rm -p 80:80 my-website:1.0.0
 * `INFO success: oauth2_proxy entered RUNNING state`
 
 ```
-vscode ➜ /workspaces/hello-docusaurus $ docker run --rm -p 80:80 my-website:1.0.0
-2022-12-07 20:31:06,581 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
-2022-12-07 20:31:06,582 INFO supervisord started with pid 1
-2022-12-07 20:31:07,586 INFO spawned: 'nginx' with pid 7
-2022-12-07 20:31:07,589 INFO spawned: 'oauth2_proxy' with pid 8
-[2022/12/07 20:31:07] [options.go:82] WARNING: no explicit redirect URL: redirects will default to insecure HTTP
-[2022/12/07 20:31:07] [provider.go:55] Performing OIDC Discovery...
-[2022/12/07 20:31:07] [oauthproxy.go:162] OAuthProxy configured for OpenID Connect Client ID: 1pf669r4moerc42vd2i1nat6de
-[2022/12/07 20:31:07] [oauthproxy.go:168] Cookie settings: name:_oauth2_proxy secure(https):false httponly:true expiry:168h0m0s domains: path:/ samesite: refresh:disabled
-2022-12-07 20:31:08,765 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
-2022-12-07 20:31:08,765 INFO success: oauth2_proxy entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-12-08 16:56:19,760 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2022-12-08 16:56:19,761 INFO supervisord started with pid 8
+2022-12-08 16:56:20,764 INFO spawned: 'nginx' with pid 9
+2022-12-08 16:56:20,766 INFO spawned: 'oauth2_proxy' with pid 10
+[2022/12/08 16:56:20] [provider.go:55] Performing OIDC Discovery...
+[2022/12/08 16:56:20] [oauthproxy.go:162] OAuthProxy configured for OpenID Connect Client ID: 1pf669r4moerc42vd2i1nat6de
+[2022/12/08 16:56:20] [oauthproxy.go:168] Cookie settings: name:_oauth2_proxy secure(https):false httponly:true expiry:168h0m0s domains: path:/ samesite: refresh:disabled
+2022-12-08 16:56:21,962 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-12-08 16:56:21,962 INFO success: oauth2_proxy entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
 ```
 :::
 
