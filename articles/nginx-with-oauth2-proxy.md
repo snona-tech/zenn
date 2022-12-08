@@ -2,7 +2,7 @@
 title: "Nginx + OAuth2 Proxy で静的 Web サイトに認証機能を追加してみる"
 emoji: "🔐"
 type: "tech"
-topics: ["vscode", "docusaurus", "docker", "nginx", "markdown"]
+topics: ["vscode", "docusaurus", "docker", "nginx", "oauth"]
 published: true
 published_at: 2022-12-10 00:00
 ---
