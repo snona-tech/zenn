@@ -236,6 +236,7 @@ Dockerfile を次のように編集します。
 ```diff dockerfile:Dockerfile
 FROM node:lts-alpine3.16 AS build
 COPY ./my-website ./
+RUN npm install
 RUN npm run build
 
 FROM nginx:1.23.2
