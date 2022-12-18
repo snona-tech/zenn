@@ -1,6 +1,6 @@
 ---
 title: "フロントエンドを知らない一般人がトレンディなフレームワーク SvelteKit を眺める - ローカル環境構築編 -"
-emoji: "🤖"
+emoji: "🔰"
 type: "tech"
 topics: ["vscode", "devcontainer", "frontend", "svelte", "sveltekit"]
 published: true
