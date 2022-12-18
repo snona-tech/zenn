@@ -319,7 +319,7 @@ npm run docusaurus docs:version 1.0.0
 npm run docusaurus docs:version 2.0.0
 ```
 
-# さいごに
+# 最後に
 
 まだまだ紹介しきれていないいいねポイントはありますが、ここからはぜひご自分で触ってみて、ドキュサウルスと一緒に発見してみてください！
 
