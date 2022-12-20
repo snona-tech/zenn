@@ -68,7 +68,7 @@ npm run dev -- --open
 
 ![](/images/sveltekit-routing-svelvet/menue-not-found.png)
 
-# ルーティングを設定する
+## ルーティングを設定する
 
 [SvelteKit のルーティング](https://kit.svelte.jp/docs/routing)は、フォルダ階層やフォルダ名で設定することができます。
 つまり、フォルダ構成を見ればどのような URL でアクセスできるのかがわかります。（Nuxt.js も同じようなスタイルでルーティングを行うようです）
