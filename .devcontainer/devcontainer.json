@@ -1,0 +1,24 @@
+{
+	"name": "Zenn Editor",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {
+			"version": "latest"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"shardulm94.trailing-spaces",
+				"ionutvmi.path-autocomplete",
+				"yzhang.markdown-all-in-one",
+				"mhutchie.git-graph",
+				"donjayamanne.githistory",
+				"eamodio.gitlens",
+				"zenn.zenn-preview",
+				"oderwat.indent-rainbow"
+			]
+		}
+	},
+	"postCreateCommand": "npm install && sudo apt-get update -y && sudo apt-get install -y chromium"
+}
