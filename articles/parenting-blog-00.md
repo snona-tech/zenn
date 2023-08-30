@@ -77,3 +77,10 @@ Zenn や GitHub では [casa-snona](https://zenn.dev/casa_snona) と名乗って
 
 それでは次回の投稿でまたお会いしましょう。
 See you next バイバイ👋
+
+# 関連記事
+
+https://zenn.dev/casa_snona/articles/parenting-blog-00
+https://zenn.dev/casa_snona/articles/parenting-blog-01
+https://zenn.dev/casa_snona/articles/parenting-blog-02
+https://zenn.dev/casa_snona/articles/parenting-blog-03
