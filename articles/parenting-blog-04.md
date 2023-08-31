@@ -1,8 +1,8 @@
 ---
 title: "【クラウドエンジニアのパパ育休#04】Raspberry Pi でベビールームの温度監視をやってみた"
 emoji: "🍼"
-type: "idea"
-topics: ["育児","パパ育休","raspberrypi"]
+type: "tech"
+topics: ["raspberrypi","育児","パパ育休"]
 published: true
 published_at: 2023-08-31 09:30
 ---
@@ -128,3 +128,4 @@ https://zenn.dev/casa_snona/articles/parenting-blog-00
 https://zenn.dev/casa_snona/articles/parenting-blog-01
 https://zenn.dev/casa_snona/articles/parenting-blog-02
 https://zenn.dev/casa_snona/articles/parenting-blog-03
+https://zenn.dev/casa_snona/articles/parenting-blog-04
