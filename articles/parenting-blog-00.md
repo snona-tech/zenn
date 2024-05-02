@@ -16,7 +16,7 @@ published_at: 2023-07-14 10:30
 # 自己紹介
 
 [株式会社カサレアル](https://www.casareal.co.jp/) プロフェッショナルソリューション技術部の S.N. です。
-Zenn や GitHub では [casa-snona](https://zenn.dev/casa_snona) と名乗っています。
+Zenn や GitHub では [snona-tech](https://zenn.dev/casa_snona) と名乗っています。
 普段はクラウドインフラのエンジニアとして働いています。
 2023年7月現在、ピッチピチの 31🍨 です！
 正式なプロフィールはないのですが、[弊社の社員インタビュー](https://www.casareal.co.jp/recruit/career/)の 1スライド目に載っている人です。

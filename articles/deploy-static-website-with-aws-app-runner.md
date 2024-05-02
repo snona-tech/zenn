@@ -18,7 +18,7 @@ published_at: 2022-12-11 00:00
 
 本記事のソースコードは👇で公開しています。
 
-https://github.com/casa-snona/hello-docusaurus
+https://github.com/snona-tech/hello-docusaurus
 
 # はじめに
 
@@ -53,7 +53,7 @@ https://www.youtube.com/watch?v=8Tmf5J2hXT8
 ## 前提条件
 
 以降の手順は、シリーズ化している記事で構築した環境を前提としています。
-構築した環境なんて知らないよという方は、[GitHub で公開しているソースコード](https://github.com/casa-snona/hello-docusaurus)をクローンするか、前回までの記事をご覧ください🙏
+構築した環境なんて知らないよという方は、[GitHub で公開しているソースコード](https://github.com/snona-tech/hello-docusaurus)をクローンするか、前回までの記事をご覧ください🙏
 
 https://zenn.dev/casa_snona/articles/vscode-docusaurus-local-env
 https://zenn.dev/casa_snona/articles/docusaurus-is-good-here
